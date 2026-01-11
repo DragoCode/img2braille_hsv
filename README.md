@@ -7,8 +7,8 @@ Supports HSV now!
 First make sure that you have [Python 3](https://www.python.org/downloads/) and [pip](https://pip.pypa.io/en/stable/installation/) installed.
 In the terminal:
 ```bash
-git clone https://github.com/TheFel0x/img2braille
-cd img2braille
+git clone https://github.com/DragoCode/img2braille_hsv
+cd img2braille_hsv
 python -m pip install -r requirements.txt
 ```
 Then to run the script:
