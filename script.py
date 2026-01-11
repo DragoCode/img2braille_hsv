@@ -52,6 +52,24 @@ parser.add_argument(
     action='store_true',
     help="U+28FF everywhere. If all you want is the color output",
 )
+parser.add_argument(
+    "-H", "--hue",
+    type=int,
+    default=0,
+    help="determines level of hue"
+)
+parser.add_argument(
+    "-s", "--saturation",
+    type=int,
+    default=100,
+    help="determines level of saturation"
+)
+parser.add_argument(
+    "-v","--value",
+    type=int,
+    default=100,
+    help="determines level of value (brightness)"
+)
 
 # TODO: add "--algorithm" flag; support dithering algorithms: bayer matrix, floyd-steinberg, threshold, etc.
 #   note: default should be threshold? maybe something nicer looking instead.
@@ -163,6 +181,43 @@ def color_average_at_cursor(original_img, pos, colorstyle):
     else:
         return ""
 
+
+# Adjust image in HSV space using provided hue (degrees), saturation (%) and value (%)
+def adjust_hsv(img, hue_deg, sat_percent, val_percent):
+    if hue_deg == 0 and sat_percent == 100 and val_percent == 100:
+        return img
+    rgb = img.convert("RGB")
+    hsv = rgb.convert("HSV")
+    hshift = int(round((hue_deg % 360) * 255.0 / 360.0))
+    s_mult = float(sat_percent) / 100.0
+    v_mult = float(val_percent) / 100.0
+    # Use get_flattened_data to avoid deprecation of getdata()
+    flat = hsv.get_flattened_data()
+    new_pixels = []
+    if not flat:
+        return img
+    first = flat[0]
+    # If get_flattened_data returns triplets (h,s,v) per item
+    if isinstance(first, (tuple, list)):
+        for (h, s, v) in flat:
+            nh = (int(h) + hshift) % 256
+            ns = int(max(0, min(255, round(int(s) * s_mult))))
+            nv = int(max(0, min(255, round(int(v) * v_mult))))
+            new_pixels.append((nh, ns, nv))
+    else:
+        # flattened sequence of ints/bytes: [h,s,v,h,s,v,...]
+        for i in range(0, len(flat), 3):
+            h = flat[i]
+            s = flat[i+1]
+            v = flat[i+2]
+            nh = (int(h) + hshift) % 256
+            ns = int(max(0, min(255, round(int(s) * s_mult))))
+            nv = int(max(0, min(255, round(int(v) * v_mult))))
+            new_pixels.append((nh, ns, nv))
+    hsv2 = Image.new('HSV', hsv.size)
+    hsv2.putdata(new_pixels)
+    return hsv2.convert("RGB")
+
 # Iterates over the image and does all the stuff
 def iterate_image(img, original_img, dither, autocontrast, noempty, colorstyle, blank):
     img = apply_algo(img, args.calc)
@@ -202,6 +257,10 @@ off_y = img.size[1] % 4
 if off_x + off_y > 0:
     img = img.resize((img.size[0] + off_x, img.size[1] + off_y))
 original_img = img.copy()
+
+# Apply HSV adjustments (hue in degrees, saturation/value in percent)
+img = adjust_hsv(img, args.hue, args.saturation, args.value)
+original_img = adjust_hsv(original_img, args.hue, args.saturation, args.value)
 
 # Get your output!
 iterate_image(img, original_img, args.dither, args.autocontrast, args.noempty, args.color, args.blank)
