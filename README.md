@@ -1,8 +1,7 @@
-[![CodeFactor](https://www.codefactor.io/repository/github/thefel0x/img2braille/badge/main)](https://www.codefactor.io/repository/github/thefel0x/img2braille/overview/main)
 # img2braille
 Turns an Image into Braille Art with [Pillow](https://python-pillow.org/). (...or Unicode Art ...or "ASCII Art" (its not rly ascii))
 
-Supports color now!
+Supports HSV now!
 
 ## Installation
 First make sure that you have [Python 3](https://www.python.org/downloads/) and [pip](https://pip.pypa.io/en/stable/installation/) installed.
@@ -29,6 +28,9 @@ python script.py --help
 | `-c` `--color` | `none` `ansi` `ansifg` `ansiall` `html` `htmlbg` `htmlall` | color support for either HTML style with font tags or ANSI escaped for cli use (html also puts br tags at the end of each line) htmlbg colors the background instead of the characters and all colors both |
 | `-a` `--autocontrast` | - | enables autocontrast, to automatically adjust black and white values for calculations to the images max/min (recommended for black/white use) |
 | `-b` `--blank` | - | all braille blocks are "full" blocks, in case you only care about the color output and not about the braille pattern | 
+| `-h` `--hue`| integer | hue value in degrees |
+| `-s` `--saturation`| integer | saturation value in percents |
+| `-v` `--value`| integer | brightness value in percents |
 
 ## Examples
 `python script.py 'lain.png' --color ansi --dither --noempty`
@@ -42,6 +44,9 @@ python script.py --help
 
 `python script.py 'lain.png' --noinvert`
 ![noinvert-braille](https://user-images.githubusercontent.com/43345523/124508619-9b196180-ddd0-11eb-9def-b906a5e534c4.png)
+
+`python3 script.py "lain.jpg" --hue 600 --saturation 200 --value 70 -c ansifg`
+![new-features](https://github.com/user-attachments/assets/cf1d257d-119c-4b95-bfef-7e9f69a9ba64)
 
 ## How it works:
 - divide image into 2x4 pixel blocks
