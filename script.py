@@ -53,7 +53,7 @@ parser.add_argument(
     help="U+28FF everywhere. If all you want is the color output",
 )
 parser.add_argument(
-    "-h", "--hue",
+    "-u", "--hue",
     type=int,
     default=0,
     help="determines level of hue"
